@@ -10,15 +10,17 @@
       @update:zoom="zoomUpdate"
     >
       <l-tile-layer :url="url" />
-      <l-marker
-        v-for="stop of stops"
-        :key="stop.id"
-        :lat-lng="{ lat: stop.lat, lng: stop.lon }"
-      >
-        <l-popup>
-          <div>I am a popup</div>
-        </l-popup>
-      </l-marker>
+      <l-marker-cluster>
+        <l-marker
+          v-for="stop of stops"
+          :key="stop.id"
+          :lat-lng="{ lat: stop.lat, lng: stop.lon }"
+        >
+          <l-popup>
+            <div>I am a popup</div>
+          </l-popup>
+        </l-marker>
+      </l-marker-cluster>
     </l-map>
   </div>
 </template>
@@ -28,6 +30,7 @@ import { latLng } from "leaflet";
 import { LMap, LTileLayer, LMarker, LPopup } from "vue2-leaflet";
 import { useRoutesAndStopsStore } from "@/store/routes-and-stops";
 import { mapState } from "pinia";
+import Vue2LeafletMarkerCluster from "vue2-leaflet-markercluster";
 
 export default {
   name: "RoutesAndStopsMap",
@@ -36,6 +39,7 @@ export default {
     LTileLayer,
     LMarker,
     LPopup,
+    "l-marker-cluster": Vue2LeafletMarkerCluster,
   },
   data() {
     return {
@@ -64,3 +68,8 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+@import "~leaflet.markercluster/dist/MarkerCluster.css";
+@import "~leaflet.markercluster/dist/MarkerCluster.Default.css";
+</style>
