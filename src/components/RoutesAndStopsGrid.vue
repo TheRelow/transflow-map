@@ -18,8 +18,8 @@
       :rowSelection="rowSelection"
       @selection-changed="onSelectionChanged"
       @grid-ready="onGridReady"
-    >
-    </ag-grid-vue>
+      @rowDataUpdated="rowDataUpdated"
+    />
   </div>
 </template>
 
@@ -37,14 +37,24 @@ export default {
       routeColumns: [
         {
           field: "title",
+          headerName: "Название маршрута",
+          resizable: false,
+          flex: 1,
         },
-        {
-          field: "stopsCount",
-        },
+        // {
+        //   field: "stopsCount",
+        //   headerName: "Колличество остановок",
+        //   resizable: false,
+        //   width: 200,
+        // },
       ],
       stopColumns: [
         {
           field: "name",
+          headerName: "Название остановки",
+          resizable: false,
+          flex: 1,
+          // width: "100%",
         },
       ],
       rowSelection: "single",
@@ -60,6 +70,8 @@ export default {
       "stops",
       "maps",
       "activeMap",
+      "activeStopId",
+      "activeRouteId",
     ]),
     columnDefs() {
       switch (this.activeMap) {
@@ -83,17 +95,70 @@ export default {
     },
   },
   methods: {
-    ...mapActions(useRoutesAndStopsStore, ["changeMap", "changeActiveStop"]),
+    ...mapActions(useRoutesAndStopsStore, [
+      "changeMap",
+      "changeActiveStop",
+      "changeActiveRoute",
+    ]),
     onSelectionChanged() {
       const selectedRows = this.gridApi.getSelectedRows();
       if (this.activeMap === "stops" && selectedRows.length === 1) {
         this.changeActiveStop(selectedRows[0].id);
+        this.changeActiveRoute(null);
+      } else if (this.activeMap === "routes" && selectedRows.length === 1) {
+        this.changeActiveRoute(selectedRows[0].id);
+        this.changeActiveStop(null);
       } else {
         this.changeActiveStop(null);
+        this.changeActiveRoute(null);
       }
     },
     onGridReady(params) {
       this.gridApi = params.api;
+    },
+    checkActiveStopId() {
+      this.gridApi?.forEachNode((node) => {
+        if (node.data.id === this.activeStopId) {
+          node.setSelected(true);
+          this.gridApi.ensureNodeVisible(node, "middle");
+        }
+      });
+    },
+    checkActiveRouteId() {
+      this.gridApi?.forEachNode((node) => {
+        if (node.data.id === this.activeRouteId) {
+          node.setSelected(true);
+          this.gridApi.ensureNodeVisible(node, "middle");
+        }
+      });
+    },
+    rowDataUpdated() {
+      switch (this.activeMap) {
+        case "routes":
+          this.checkActiveRouteId();
+          break;
+        case "stops":
+          this.checkActiveStopId();
+          break;
+        default:
+          return [];
+      }
+    },
+  },
+  watch: {
+    activeStopId(val) {
+      if (val) {
+        this.checkActiveStopId();
+      } else {
+        this.gridApi.deselectAll();
+      }
+    },
+    activeRouteId(val) {
+      if (val) {
+        this.checkActiveRouteId();
+      } else {
+        this.gridApi.deselectAll();
+      }
     },
   },
 };

@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import data from "@/prepared-data/routes-and-stops.json";
+import data from "@/prepared-data/routes-and-stops-mini.json";
 
 export const useRoutesAndStopsStore = defineStore("routesAndStops", {
   state: () => ({
@@ -21,6 +21,7 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
       },
     ],
     activeStopId: null,
+    activeRouteId: null,
   }),
   getters: {
     routes: (state) => {
@@ -29,6 +30,7 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
         title: el.Description,
         stops: el.Stops.map((stop) => stop.ID),
         stopsCount: el.Stops.reduce((p) => p + 1, 0),
+        points: el.Points?.map((point) => [point.Lat, point.Lon]) || [],
       }));
     },
     stops: (state) => {
@@ -89,13 +91,18 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
       const idx = this.maps.findIndex((el) => el.type === map);
       if (idx !== -1) {
         this.maps[idx].isActive = true;
+        this.activeStopId = null;
       } else {
         this.maps = beforeChange;
         throw "Карты такого типа не существует";
       }
     },
     changeActiveStop(id) {
+      if (typeof id === "number") this.changeMap("stops");
       this.activeStopId = id;
+    },
+    changeActiveRoute(id) {
+      this.activeRouteId = id;
     },
   },
 });
