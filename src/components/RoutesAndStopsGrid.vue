@@ -14,7 +14,10 @@
     <ag-grid-vue
       class="ag-theme-quartz routes-and-stops__grid"
       :columnDefs="columnDefs"
-      :rowData="routes"
+      :rowData="rowData"
+      :rowSelection="rowSelection"
+      @selection-changed="onSelectionChanged"
+      @grid-ready="onGridReady"
     >
     </ag-grid-vue>
   </div>
@@ -31,7 +34,7 @@ export default {
   name: "RoutesAndStopsGrid",
   data() {
     return {
-      columnDefs: [
+      routeColumns: [
         {
           field: "title",
         },
@@ -39,17 +42,59 @@ export default {
           field: "stopsCount",
         },
       ],
-      rowData: null,
+      stopColumns: [
+        {
+          field: "name",
+        },
+      ],
+      rowSelection: "single",
+      gridApi: null,
     };
   },
   components: {
     AgGridVue,
   },
   computed: {
-    ...mapState(useRoutesAndStopsStore, ["routes", "stops", "maps"]),
+    ...mapState(useRoutesAndStopsStore, [
+      "routes",
+      "stops",
+      "maps",
+      "activeMap",
+    ]),
+    columnDefs() {
+      switch (this.activeMap) {
+        case "routes":
+          return this.routeColumns;
+        case "stops":
+          return this.stopColumns;
+        default:
+          return [];
+      }
+    },
+    rowData() {
+      switch (this.activeMap) {
+        case "routes":
+          return this.routes;
+        case "stops":
+          return this.stops;
+        default:
+          return [];
+      }
+    },
   },
   methods: {
-    ...mapActions(useRoutesAndStopsStore, ["changeMap"]),
+    ...mapActions(useRoutesAndStopsStore, ["changeMap", "changeActiveStop"]),
+    onSelectionChanged() {
+      const selectedRows = this.gridApi.getSelectedRows();
+      if (this.activeMap === "stops" && selectedRows.length === 1) {
+        this.changeActiveStop(selectedRows[0].id);
+      } else {
+        this.changeActiveStop(null);
+      }
+    },
+    onGridReady(params) {
+      this.gridApi = params.api;
+    },
   },
 };
 </script>

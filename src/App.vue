@@ -32,8 +32,8 @@ export default {
     ]),
   },
   async mounted() {
-    this.usePreparedData();
-    // this.fetchRoutesAndStops();
+    // this.usePreparedData();
+    this.fetchRoutesAndStops();
   },
 };
 </script>

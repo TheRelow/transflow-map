@@ -15,9 +15,10 @@
           v-for="stop of stops"
           :key="stop.id"
           :lat-lng="{ lat: stop.lat, lng: stop.lon }"
+          :visible="activeStopId ? stop.id === activeStopId : true"
         >
           <l-popup>
-            <div>I am a popup</div>
+            <div>{{ stop.name }}</div>
           </l-popup>
         </l-marker>
       </l-marker-cluster>
@@ -56,7 +57,12 @@ export default {
     };
   },
   computed: {
-    ...mapState(useRoutesAndStopsStore, ["routes", "stops", "maps"]),
+    ...mapState(useRoutesAndStopsStore, [
+      "routes",
+      "stops",
+      "maps",
+      "activeStopId",
+    ]),
   },
   methods: {
     zoomUpdate(zoom) {

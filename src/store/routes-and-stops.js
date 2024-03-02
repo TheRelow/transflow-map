@@ -20,6 +20,7 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
         isActive: false,
       },
     ],
+    activeStopId: null,
   }),
   getters: {
     routes: (state) => {
@@ -92,6 +93,9 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
         this.maps = beforeChange;
         throw "Карты такого типа не существует";
       }
+    },
+    changeActiveStop(id) {
+      this.activeStopId = id;
     },
   },
 });
