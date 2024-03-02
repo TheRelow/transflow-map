@@ -9,7 +9,7 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .default-layout {
   display: flex;
   height: 100svh;

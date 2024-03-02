@@ -1,10 +1,6 @@
 <template>
   <DefaultLayout>
     <template #sidebar>
-      <div class="switcher">
-        <div>Маршруты</div>
-        <div>Остановки</div>
-      </div>
       <RoutesAndStopsGrid></RoutesAndStopsGrid>
     </template>
     <RoutesAndStopsMap />
