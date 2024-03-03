@@ -98,10 +98,11 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
       }
     },
     changeActiveStop(id) {
-      if (typeof id === "number") this.changeMap("stops");
+      this.activeRouteId = null;
       this.activeStopId = id;
     },
     changeActiveRoute(id) {
+      this.activeStopId = null;
       this.activeRouteId = id;
     },
   },

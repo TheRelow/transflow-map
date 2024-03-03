@@ -17,7 +17,7 @@
           :key="stop.id"
           :lat-lng="{ lat: stop.lat, lng: stop.lon }"
           :visible="activeStopId ? stop.id === activeStopId : true"
-          @click="changeActiveStop(stop.id)"
+          @click="selectStop(stop.id)"
         >
         </l-marker>
       </l-marker-cluster>
@@ -93,12 +93,17 @@ export default {
     ...mapActions(useRoutesAndStopsStore, [
       "changeActiveStop",
       "changeActiveRoute",
+      "changeMap",
     ]),
     zoomUpdate(zoom) {
       this.currentZoom = zoom;
     },
     centerUpdate(center) {
       this.currentCenter = center;
+    },
+    selectStop(id) {
+      this.changeMap("stops");
+      this.changeActiveStop(id);
     },
   },
   watch: {

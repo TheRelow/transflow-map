@@ -107,13 +107,8 @@ export default {
       const selectedRows = this.gridApi.getSelectedRows();
       if (this.activeMap === "stops" && selectedRows.length === 1) {
         this.changeActiveStop(selectedRows[0].id);
-        this.changeActiveRoute(null);
       } else if (this.activeMap === "routes" && selectedRows.length === 1) {
         this.changeActiveRoute(selectedRows[0].id);
-        this.changeActiveStop(null);
-      } else {
-        this.changeActiveStop(null);
-        this.changeActiveRoute(null);
       }
     },
     onGridReady(params) {
