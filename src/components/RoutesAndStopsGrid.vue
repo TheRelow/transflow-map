@@ -16,6 +16,8 @@
       :columnDefs="columnDefs"
       :rowData="rowData"
       :rowSelection="rowSelection"
+      :allowContextMenuWithControlKey="true"
+      :getContextMenuItems="getContextMenuItems"
       @selection-changed="onSelectionChanged"
       @grid-ready="onGridReady"
       @rowDataUpdated="rowDataUpdated"
@@ -26,6 +28,7 @@
 <script>
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
+import "ag-grid-enterprise";
 import { AgGridVue } from "ag-grid-vue";
 import { useRoutesAndStopsStore } from "@/store/routes-and-stops";
 import { mapState, mapActions } from "pinia";
@@ -142,6 +145,22 @@ export default {
           break;
         default:
           return [];
+      }
+    },
+    getContextMenuItems(params) {
+      let result = [
+        {
+          // custom item
+          name: "Подробно",
+          action: () => {
+            if (params.node.data.id) {
+              this.$router.push(`/route/${params.node.data.id}`);
+            }
+          },
+        },
+      ];
+      if (this.activeMap === "routes") {
+        return result;
       }
     },
   },
