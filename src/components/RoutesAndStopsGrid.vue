@@ -14,7 +14,6 @@
     <ag-grid-vue
       class="ag-theme-quartz routes-and-stops__grid"
       :columnDefs="columnDefs"
-      :rowData="rowData"
       :rowSelection="rowSelection"
       :allowContextMenuWithControlKey="true"
       :getContextMenuItems="getContextMenuItems"
@@ -108,6 +107,7 @@ export default {
     },
     onGridReady(params) {
       this.gridApi = params.api;
+      this.gridApi.setGridOption("rowData", this.rowData);
     },
     checkActiveStopId() {
       this.gridApi?.forEachNode((node) => {
@@ -168,6 +168,9 @@ export default {
       } else {
         this.gridApi.deselectAll();
       }
+    },
+    rowData(val) {
+      this.gridApi.setGridOption("rowData", val);
     },
   },
 };

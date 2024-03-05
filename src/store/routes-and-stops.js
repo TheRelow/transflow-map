@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import data from "@/prepared-data/routes-and-stops-mini.json";
+import { v4 as uuidv4 } from "uuid";
 
 export const useRoutesAndStopsStore = defineStore("routesAndStops", {
   state: () => ({
@@ -144,6 +145,10 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
     changeActiveRoute(id) {
       this.activeStopId = null;
       this.activeRouteId = id;
+    },
+    createStop(data) {
+      console.log("data", data);
+      this.stops.push({ ...data, id: uuidv4() });
     },
   },
 });

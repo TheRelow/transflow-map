@@ -17,9 +17,10 @@
           :key="stop.id"
           :lat-lng="{ lat: stop.lat, lng: stop.lon }"
           :visible="
-            (activeRouteStops.length === 0 &&
+            !creatingStop &&
+            ((activeRouteStops.length === 0 &&
               (activeStopId ? stop.id === activeStopId : true)) ||
-            activeRouteStops.includes(stop.id)
+              activeRouteStops.includes(stop.id))
           "
           :icon="stop.forward === false ? redMarker : blueMarker"
           @click="selectStop(stop.id)"
@@ -27,6 +28,18 @@
           <l-tooltip :options="tooltipOptions">
             {{ stop.name }}
           </l-tooltip>
+        </l-marker>
+        <l-marker
+          v-if="customStop"
+          :lat-lng="customStop.latLng"
+          :icon="blueMarker"
+          ref="customStop"
+        >
+          <l-popup :options="{ permanent: true, interactive: true }">
+            <form @submit.prevent="submitStop">
+              <input class="custom-popup-input" v-model="customStop.name" />
+            </form>
+          </l-popup>
         </l-marker>
       </l-marker-cluster>
       <l-polyline
@@ -36,24 +49,25 @@
         :lat-lngs="route.points"
         color="#5c14c6"
         :visible="
+          !creatingStop &&
           activeMap === 'routes' &&
           (!activeRouteId || activeRouteId === route.id)
         "
         @click="changeActiveRoute(route.id)"
         ref="route-line"
       ></l-polyline>
-      <l-control v-if="activeStopId" position="bottomleft">
+      <l-control v-if="!creatingStop && activeStopId" position="bottomleft">
         <button class="map-button" @click="changeActiveStop(null)">
           Отобразить все остановки
         </button>
       </l-control>
-      <l-control v-if="activeRouteId" position="bottomleft">
+      <l-control v-if="!creatingStop && activeRouteId" position="bottomleft">
         <button class="map-button" @click="changeActiveRoute(null)">
           Отобразить все маршруты
         </button>
       </l-control>
       <l-control>
-        <button class="map-button" @click="creatingStop = !creatingStop">
+        <button class="map-button" @click="toggleStopCreating">
           {{ !creatingStop ? "Добавить остановку" : "Отмена" }}
         </button>
       </l-control>
@@ -70,6 +84,7 @@ import {
   // LCircleMarker,
   LPolyline,
   LControl,
+  LPopup,
   LTooltip,
 } from "vue2-leaflet";
 import { useRoutesAndStopsStore } from "@/store/routes-and-stops";
@@ -86,12 +101,14 @@ export default {
     // LCircleMarker,
     LPolyline,
     LControl,
+    LPopup,
     LTooltip,
     "l-marker-cluster": Vue2LeafletMarkerCluster,
   },
   data() {
     return {
       creatingStop: false,
+      customStop: null,
       zoom: 13,
       center: latLng(57.288915, 55.472213),
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -133,6 +150,7 @@ export default {
       "changeActiveStop",
       "changeActiveRoute",
       "changeMap",
+      "createStop",
     ]),
     zoomUpdate(zoom) {
       this.currentZoom = zoom;
@@ -144,8 +162,42 @@ export default {
       this.changeMap("stops");
       this.changeActiveStop(id);
     },
+    clickHandlerInEditingMode(e) {
+      this.createMarker(e.latlng);
+    },
+    createMarker(latLng) {
+      this.customStop = {
+        latLng,
+        name: "",
+      };
+      // this.creatingStop = false;
+      this.$nextTick(() => {
+        this.$refs.customStop.mapObject.openPopup();
+      });
+    },
+    submitStop() {
+      this.createStop({
+        name: this.customStop.name,
+        lat: this.customStop.latLng.lat,
+        lon: this.customStop.latLng.lng,
+      });
+      this.customStop = null;
+      this.creatingStop = false;
+    },
+    toggleStopCreating() {
+      this.changeActiveStop(null);
+      this.changeActiveRoute(null);
+      this.creatingStop = !this.creatingStop;
+    },
   },
   watch: {
+    creatingStop(val) {
+      if (val) {
+        this.$refs.map.mapObject.on("click", this.clickHandlerInEditingMode);
+      } else {
+        this.$refs.map.mapObject.off("click", this.clickHandlerInEditingMode);
+      }
+    },
     activeStopId(id) {
       const stop = this.stops.find((el) => el.id === id);
       if (stop) {
@@ -176,5 +228,12 @@ export default {
 .map-button {
   min-width: 200px;
   height: 60px;
+}
+
+.custom-popup-input {
+  padding: 6px 12px;
+  width: 250px;
+  border: none;
+  border-bottom: 1px solid #ccc;
 }
 </style>
