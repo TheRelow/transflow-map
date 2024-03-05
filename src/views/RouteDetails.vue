@@ -5,18 +5,18 @@
         <div class="detail-sidebar__top">
           <router-link to="/" class="detail-sidebar__go-back"></router-link>
           <div class="detail-sidebar__title">
-            {{ routeInfo?.Description }}
+            {{ routeInfo?.title }}
           </div>
         </div>
         <div class="detail-sidebar__info" v-if="routeInfo">
-          <p v-if="routeInfo.ContractorName">
-            <b>Перевозчик:</b> {{ routeInfo.ContractorName }}
-          </p>
           <p v-if="routeInfo.contractorName">
+            <b>Перевозчик:</b> {{ routeInfo.contractorName }}
+          </p>
+          <p v-if="routeInfo.forwardStopsCount">
             <b>Остановок в прямом направлении:</b>
             {{ routeInfo.forwardStopsCount }}
           </p>
-          <p v-if="routeInfo.contractorName">
+          <p v-if="routeInfo.backwardStopsCount">
             <b>Остановок в обратном направлении:</b>
             {{ routeInfo.backwardStopsCount }}
           </p>
@@ -27,7 +27,7 @@
       <ag-grid-vue
         class="ag-theme-quartz stops-grid"
         :columnDefs="columnDefs"
-        :rowData="routeInfo.Stops"
+        :rowData="routeInfo.stops"
         :getRowStyle="getRowStyle"
       />
     </div>
@@ -52,7 +52,7 @@ export default {
     return {
       columnDefs: [
         {
-          field: "Name",
+          field: "name",
           headerName: "Название остановки",
           resizable: false,
           sortable: false,
@@ -75,7 +75,7 @@ export default {
       let result = {
         background: "rgb(213, 222, 255)",
       };
-      if (params.data.Forward === false)
+      if (params.data.forward === false)
         result.background = "rgb(255, 213, 213)";
       return result;
     },

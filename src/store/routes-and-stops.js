@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 
 export const useRoutesAndStopsStore = defineStore("routesAndStops", {
   state: () => ({
+    mapCenter: null,
+    mapZoom: null,
     routesAndStops: [],
     isLoading: false,
     loadingProgress: null,
@@ -28,11 +30,12 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
   getters: {
     activeMap: (state) => state.maps.find((i) => i.isActive === true).type,
     detailRoute: (state) => (id) => {
-      const idx = state.routesAndStops.findIndex((el) => el.ID === id);
+      const idx = state.routes.findIndex((el) => el.id === id);
       if (idx !== -1) {
-        return state.routesAndStops[idx];
+        return state.routes[idx];
       } else {
-        throw "Такого маршрута нет";
+        console.warn("Такого маршрута нет");
+        return {};
       }
     },
     activeRouteStops: (state) => {
@@ -42,7 +45,7 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
           (el) => el.id === state.activeRouteId
         );
         if (idx !== -1) {
-          result = state.routes[idx].stops;
+          result = state.routes[idx].stops.map((el) => el.id);
         }
       }
       return result;
@@ -53,7 +56,11 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
       this.routes = data.map((el) => ({
         id: el.ID,
         title: el.Description,
-        stops: el.Stops.map((stop) => stop.ID),
+        stops: el.Stops.map((stop) => ({
+          id: stop.ID,
+          forward: stop.Forward,
+          name: stop.Name,
+        })),
         forwardStopsCount: el.Stops.reduce((p, c) => {
           if (c.Forward) {
             return p + 1;
@@ -97,7 +104,6 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
     usePreparedData() {
       this.setRoutes(data);
       this.setStops(data);
-      this.routesAndStops = data;
     },
     async fetchRoutesAndStops() {
       try {
@@ -115,7 +121,6 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
         );
         this.setRoutes(res.data);
         this.setStops(res.data);
-        this.routesAndStops = res.data;
         this.isLoading = false;
         this.loadingProgress = null;
         return res;
@@ -149,6 +154,12 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
     createStop(data) {
       console.log("data", data);
       this.stops.push({ ...data, id: uuidv4() });
+    },
+    setMapCenter(center) {
+      this.mapCenter = center;
+    },
+    setMapZoom(zoom) {
+      this.mapZoom = zoom;
     },
   },
 });

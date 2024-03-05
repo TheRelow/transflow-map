@@ -113,8 +113,6 @@ export default {
       center: latLng(57.288915, 55.472213),
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       withPopup: latLng(57.288915, 55.472213),
-      currentZoom: 11.5,
-      currentCenter: latLng(57.288915, 55.472213),
       mapOptions: {
         zoomSnap: 0.5,
       },
@@ -143,6 +141,8 @@ export default {
       "activeRouteId",
       "activeMap",
       "activeRouteStops",
+      "mapCenter",
+      "mapZoom",
     ]),
   },
   methods: {
@@ -151,12 +151,14 @@ export default {
       "changeActiveRoute",
       "changeMap",
       "createStop",
+      "setMapCenter",
+      "setMapZoom",
     ]),
     zoomUpdate(zoom) {
-      this.currentZoom = zoom;
+      this.setMapZoom(zoom);
     },
     centerUpdate(center) {
-      this.currentCenter = center;
+      this.setMapCenter(center);
     },
     selectStop(id) {
       this.changeMap("stops");
@@ -189,6 +191,14 @@ export default {
       this.changeActiveRoute(null);
       this.creatingStop = !this.creatingStop;
     },
+  },
+  beforeMount() {
+    if (this.mapCenter) {
+      this.center = this.mapCenter;
+    }
+    if (this.mapZoom) {
+      this.zoom = this.mapZoom;
+    }
   },
   watch: {
     creatingStop(val) {
