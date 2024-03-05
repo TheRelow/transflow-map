@@ -24,6 +24,9 @@
           :icon="stop.forward === false ? redMarker : blueMarker"
           @click="selectStop(stop.id)"
         >
+          <l-tooltip :options="tooltipOptions">
+            {{ stop.name }}
+          </l-tooltip>
         </l-marker>
       </l-marker-cluster>
       <l-polyline
@@ -40,13 +43,18 @@
         ref="route-line"
       ></l-polyline>
       <l-control v-if="activeStopId" position="bottomleft">
-        <button class="show-all" @click="changeActiveStop(null)">
+        <button class="map-button" @click="changeActiveStop(null)">
           Отобразить все остановки
         </button>
       </l-control>
       <l-control v-if="activeRouteId" position="bottomleft">
-        <button class="show-all" @click="changeActiveRoute(null)">
+        <button class="map-button" @click="changeActiveRoute(null)">
           Отобразить все маршруты
+        </button>
+      </l-control>
+      <l-control>
+        <button class="map-button" @click="creatingStop = !creatingStop">
+          {{ !creatingStop ? "Добавить остановку" : "Отмена" }}
         </button>
       </l-control>
     </l-map>
@@ -54,7 +62,7 @@
 </template>
 
 <script>
-import { latLng, icon } from "leaflet";
+import { latLng, icon, point } from "leaflet";
 import {
   LMap,
   LTileLayer,
@@ -62,6 +70,7 @@ import {
   // LCircleMarker,
   LPolyline,
   LControl,
+  LTooltip,
 } from "vue2-leaflet";
 import { useRoutesAndStopsStore } from "@/store/routes-and-stops";
 import { mapState, mapActions } from "pinia";
@@ -77,10 +86,12 @@ export default {
     // LCircleMarker,
     LPolyline,
     LControl,
+    LTooltip,
     "l-marker-cluster": Vue2LeafletMarkerCluster,
   },
   data() {
     return {
+      creatingStop: false,
       zoom: 13,
       center: latLng(57.288915, 55.472213),
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -99,8 +110,11 @@ export default {
       redMarker: icon({
         iconUrl: "/red-marker.svg",
         iconSize: [40, 40],
-        iconAnchor: [20, 23],
+        iconAnchor: [20, 40],
       }),
+      tooltipOptions: {
+        offset: point(15, -26),
+      },
     };
   },
   computed: {
@@ -159,7 +173,7 @@ export default {
 @import "~leaflet.markercluster/dist/MarkerCluster.css";
 @import "~leaflet.markercluster/dist/MarkerCluster.Default.css";
 
-.show-all {
+.map-button {
   min-width: 200px;
   height: 60px;
 }

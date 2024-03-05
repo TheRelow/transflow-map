@@ -27,9 +27,9 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
   getters: {
     activeMap: (state) => state.maps.find((i) => i.isActive === true).type,
     detailRoute: (state) => (id) => {
-      const idx = state.routes.findIndex((el) => el.ID === id);
+      const idx = state.routesAndStops.findIndex((el) => el.ID === id);
       if (idx !== -1) {
-        return state.routes[idx];
+        return state.routesAndStops[idx];
       } else {
         throw "Такого маршрута нет";
       }
@@ -55,18 +55,19 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
         stops: el.Stops.map((stop) => stop.ID),
         forwardStopsCount: el.Stops.reduce((p, c) => {
           if (c.Forward) {
-            p + 1;
+            return p + 1;
           }
           return p;
         }, 0),
         backwardStopsCount: el.Stops.reduce((p, c) => {
           if (!c.Forward) {
-            p + 1;
+            return p + 1;
           }
           return p;
         }, 0),
         firstStopId: el.FirstStopId,
         lastStopId: el.LastStopId,
+        contractorName: el.ContractorName,
         points: el.Points?.map((point) => [point.Lat, point.Lon]) || [],
       }));
     },
@@ -95,7 +96,7 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
     usePreparedData() {
       this.setRoutes(data);
       this.setStops(data);
-      // this.routesAndStops = data;
+      this.routesAndStops = data;
     },
     async fetchRoutesAndStops() {
       try {
@@ -113,7 +114,7 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
         );
         this.setRoutes(res.data);
         this.setStops(res.data);
-        // this.routesAndStops = res.data;
+        this.routesAndStops = res.data;
         this.isLoading = false;
         this.loadingProgress = null;
         return res;

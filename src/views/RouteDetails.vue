@@ -8,16 +8,36 @@
             {{ routeInfo?.Description }}
           </div>
         </div>
-        <div class="detail-sidebar__info" v-if="routeInfo?.ContractorName">
-          <b>Перевозчик:</b> {{ routeInfo?.ContractorName }}
+        <div class="detail-sidebar__info" v-if="routeInfo">
+          <p v-if="routeInfo.ContractorName">
+            <b>Перевозчик:</b> {{ routeInfo.ContractorName }}
+          </p>
+          <p v-if="routeInfo.contractorName">
+            <b>Остановок в прямом направлении:</b>
+            {{ routeInfo.forwardStopsCount }}
+          </p>
+          <p v-if="routeInfo.contractorName">
+            <b>Остановок в обратном направлении:</b>
+            {{ routeInfo.backwardStopsCount }}
+          </p>
         </div>
       </div>
     </template>
-    <div class="detail-page"></div>
+    <div class="detail-page">
+      <ag-grid-vue
+        class="ag-theme-quartz stops-grid"
+        :columnDefs="columnDefs"
+        :rowData="routeInfo.Stops"
+        :getRowStyle="getRowStyle"
+      />
+    </div>
   </DefaultLayout>
 </template>
 
 <script>
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
+import { AgGridVue } from "ag-grid-vue";
 import DefaultLayout from "@/components/DefaultLayout.vue";
 import { mapState } from "pinia";
 import { useRoutesAndStopsStore } from "@/store/routes-and-stops";
@@ -26,6 +46,20 @@ export default {
   name: "RouteDetails",
   components: {
     DefaultLayout,
+    AgGridVue,
+  },
+  data() {
+    return {
+      columnDefs: [
+        {
+          field: "Name",
+          headerName: "Название остановки",
+          resizable: false,
+          sortable: false,
+          flex: 1,
+        },
+      ],
+    };
   },
   computed: {
     ...mapState(useRoutesAndStopsStore, ["detailRoute"]),
@@ -34,6 +68,16 @@ export default {
     },
     routeInfo() {
       return this.detailRoute(this.routeId);
+    },
+  },
+  methods: {
+    getRowStyle(params) {
+      let result = {
+        background: "rgb(213, 222, 255)",
+      };
+      if (params.data.Forward === false)
+        result.background = "rgb(255, 213, 213)";
+      return result;
     },
   },
 };
@@ -81,6 +125,10 @@ export default {
   margin: 24px 0;
 }
 .detail-page {
+  height: calc(100% - 48px);
   padding: 24px;
+}
+.stops-grid {
+  height: 100%;
 }
 </style>

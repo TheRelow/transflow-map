@@ -35,6 +35,9 @@ import { mapState, mapActions } from "pinia";
 
 export default {
   name: "RoutesAndStopsGrid",
+  components: {
+    AgGridVue,
+  },
   data() {
     return {
       routeColumns: [
@@ -42,30 +45,22 @@ export default {
           field: "title",
           headerName: "Название маршрута",
           resizable: false,
+          sortable: false,
           flex: 1,
         },
-        // {
-        //   field: "stopsCount",
-        //   headerName: "Колличество остановок",
-        //   resizable: false,
-        //   width: 200,
-        // },
       ],
       stopColumns: [
         {
           field: "name",
           headerName: "Название остановки",
           resizable: false,
+          sortable: false,
           flex: 1,
-          // width: "100%",
         },
       ],
       rowSelection: "single",
       gridApi: null,
     };
-  },
-  components: {
-    AgGridVue,
   },
   computed: {
     ...mapState(useRoutesAndStopsStore, [
