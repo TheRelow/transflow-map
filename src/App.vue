@@ -27,7 +27,7 @@ export default {
   },
   methods: {
     ...mapActions(useRoutesAndStopsStore, [
-      "usePreparedData",
+      // "usePreparedData",
       "fetchRoutesAndStops",
     ]),
   },

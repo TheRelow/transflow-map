@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import data from "@/prepared-data/routes-and-stops-mini.json";
+// import data from "@/prepared-data/routes-and-stops-mini.json";
 import { v4 as uuidv4 } from "uuid";
 
 export const useRoutesAndStopsStore = defineStore("routesAndStops", {
@@ -106,10 +106,10 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
         }, []);
       this.stops = result;
     },
-    usePreparedData() {
-      this.setRoutes(data);
-      this.setStops(data);
-    },
+    // usePreparedData() {
+    //   this.setRoutes(data);
+    //   this.setStops(data);
+    // },
     async fetchRoutesAndStops() {
       try {
         this.isLoading = true;

@@ -7,7 +7,14 @@ export default {
   name: "DirectionComponent",
   methods: {
     val() {
-      return this.params.value ? "Прямое" : "Обратное";
+      switch (this.params.value) {
+        case true:
+          return "Прямое";
+        case false:
+          return "Обратное";
+        default:
+          return "";
+      }
     },
   },
 };
