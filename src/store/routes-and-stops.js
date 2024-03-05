@@ -73,6 +73,7 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
           }
           return p;
         }, 0),
+        stopsCount: el.Stops.reduce((p) => p + 1, 0),
         firstStopId: el.FirstStopId,
         lastStopId: el.LastStopId,
         contractorName: el.ContractorName,
@@ -92,9 +93,13 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
                 lat: stop.Lat,
                 name: stop.Name,
                 forward: stop.Forward,
+                routesCount: 1,
               });
-            } else if (!p[idx].forward && stop.Forward === true) {
-              p[idx].forward = stop.Forward;
+            } else {
+              p[idx].routesCount++;
+              if (!p[idx].forward && stop.Forward === true) {
+                p[idx].forward = stop.Forward;
+              }
             }
           });
           return p;

@@ -2,9 +2,9 @@
   <div class="progress-loader">
     <div
       class="progress-loader__proggress"
-      :style="`width: ${progress}%`"
+      :style="`width: ${progressNumber}%`"
     ></div>
-    <div class="progress-loader__text">{{ progress }} %</div>
+    <div class="progress-loader__text">{{ progressNumber }} %</div>
   </div>
 </template>
 
@@ -15,6 +15,18 @@ export default {
     progress: {
       type: Number,
       default: 0,
+    },
+  },
+  computed: {
+    progressNumber() {
+      if (typeof this.progress === "number") {
+        if (this.progress >= 0 && this.progress <= 100) {
+          return this.progress;
+        } else if (this.progress > 100) {
+          return 100;
+        }
+      }
+      return 0;
     },
   },
 };

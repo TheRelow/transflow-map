@@ -31,11 +31,14 @@ import "ag-grid-enterprise";
 import { AgGridVue } from "ag-grid-vue";
 import { useRoutesAndStopsStore } from "@/store/routes-and-stops";
 import { mapState, mapActions } from "pinia";
+import DirectionComponent from "./DirectionComponent.vue";
 
 export default {
   name: "RoutesAndStopsGrid",
   components: {
     AgGridVue,
+    // eslint-disable-next-line vue/no-unused-components
+    DirectionComponent,
   },
   data() {
     return {
@@ -47,6 +50,13 @@ export default {
           sortable: false,
           flex: 1,
         },
+        {
+          field: "stopsCount",
+          headerName: "остановок",
+          resizable: false,
+          sortable: false,
+          width: 120,
+        },
       ],
       stopColumns: [
         {
@@ -55,6 +65,21 @@ export default {
           resizable: false,
           sortable: false,
           flex: 1,
+        },
+        {
+          field: "routesCount",
+          headerName: "маршрутов",
+          resizable: false,
+          sortable: false,
+          width: 130,
+        },
+        {
+          field: "forward",
+          headerName: "Направление",
+          resizable: false,
+          sortable: false,
+          width: 120,
+          cellRenderer: "DirectionComponent",
         },
       ],
       rowSelection: "single",

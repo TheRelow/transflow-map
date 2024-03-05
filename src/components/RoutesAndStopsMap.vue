@@ -55,7 +55,11 @@
         "
         @click="changeActiveRoute(route.id)"
         ref="route-line"
-      ></l-polyline>
+      >
+        <l-tooltip :options="{ sticky: true }">
+          {{ route.title }}
+        </l-tooltip></l-polyline
+      >
       <l-control v-if="!creatingStop && activeStopId" position="bottomleft">
         <button class="map-button" @click="changeActiveStop(null)">
           Отобразить все остановки
@@ -81,7 +85,6 @@ import {
   LMap,
   LTileLayer,
   LMarker,
-  // LCircleMarker,
   LPolyline,
   LControl,
   LPopup,
@@ -90,7 +93,6 @@ import {
 import { useRoutesAndStopsStore } from "@/store/routes-and-stops";
 import { mapState, mapActions } from "pinia";
 import Vue2LeafletMarkerCluster from "vue2-leaflet-markercluster";
-// import marker from "@/assets/marker.svg";
 
 export default {
   name: "RoutesAndStopsMap",
@@ -98,7 +100,6 @@ export default {
     LMap,
     LTileLayer,
     LMarker,
-    // LCircleMarker,
     LPolyline,
     LControl,
     LPopup,
@@ -172,7 +173,6 @@ export default {
         latLng,
         name: "",
       };
-      // this.creatingStop = false;
       this.$nextTick(() => {
         this.$refs.customStop.mapObject.openPopup();
       });
