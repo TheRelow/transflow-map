@@ -18,7 +18,7 @@
 .default-layout__sidebar {
   width: 25%;
   height: 100%;
-  background-color: #202235;
+  background-color: #e8e9f3;
   overflow: auto;
 }
 

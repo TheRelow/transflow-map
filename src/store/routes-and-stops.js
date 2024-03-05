@@ -6,7 +6,6 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
   state: () => ({
     routesAndStops: [],
     isLoading: false,
-    isPreparingStops: false,
     loadingProgress: null,
     maps: [
       {
@@ -22,20 +21,57 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
     ],
     activeStopId: null,
     activeRouteId: null,
+    routes: [],
+    stops: [],
   }),
   getters: {
-    routes: (state) => {
-      return state.routesAndStops.map((el) => ({
+    activeMap: (state) => state.maps.find((i) => i.isActive === true).type,
+    detailRoute: (state) => (id) => {
+      const idx = state.routes.findIndex((el) => el.ID === id);
+      if (idx !== -1) {
+        return state.routes[idx];
+      } else {
+        throw "Такого маршрута нет";
+      }
+    },
+    activeRouteStops: (state) => {
+      let result = [];
+      if (state.activeRouteId) {
+        const idx = state.routes.findIndex(
+          (el) => el.id === state.activeRouteId
+        );
+        if (idx !== -1) {
+          result = state.routes[idx].stops;
+        }
+      }
+      return result;
+    },
+  },
+  actions: {
+    setRoutes(data) {
+      this.routes = data.map((el) => ({
         id: el.ID,
         title: el.Description,
         stops: el.Stops.map((stop) => stop.ID),
-        stopsCount: el.Stops.reduce((p) => p + 1, 0),
+        forwardStopsCount: el.Stops.reduce((p, c) => {
+          if (c.Forward) {
+            p + 1;
+          }
+          return p;
+        }, 0),
+        backwardStopsCount: el.Stops.reduce((p, c) => {
+          if (!c.Forward) {
+            p + 1;
+          }
+          return p;
+        }, 0),
+        firstStopId: el.FirstStopId,
+        lastStopId: el.LastStopId,
         points: el.Points?.map((point) => [point.Lat, point.Lon]) || [],
       }));
     },
-    stops: (state) => {
-      state.isPreparingStops = true;
-      const result = state.routesAndStops
+    setStops(data) {
+      const result = data
         .map((el) => el.Stops)
         .reduce((p, c) => {
           c.forEach((stop) => {
@@ -46,19 +82,20 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
                 lon: stop.Lon,
                 lat: stop.Lat,
                 name: stop.Name,
+                forward: stop.Forward,
               });
+            } else if (!p[idx].forward && stop.Forward === true) {
+              p[idx].forward = stop.Forward;
             }
           });
           return p;
         }, []);
-      state.isPreparingStops = false;
-      return result;
+      this.stops = result;
     },
-    activeMap: (state) => state.maps.find((i) => i.isActive === true).type,
-  },
-  actions: {
     usePreparedData() {
-      this.routesAndStops = data;
+      this.setRoutes(data);
+      this.setStops(data);
+      // this.routesAndStops = data;
     },
     async fetchRoutesAndStops() {
       try {
@@ -74,7 +111,9 @@ export const useRoutesAndStopsStore = defineStore("routesAndStops", {
             },
           }
         );
-        this.routesAndStops = res.data;
+        this.setRoutes(res.data);
+        this.setStops(res.data);
+        // this.routesAndStops = res.data;
         this.isLoading = false;
         this.loadingProgress = null;
         return res;

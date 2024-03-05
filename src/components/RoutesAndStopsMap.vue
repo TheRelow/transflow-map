@@ -16,7 +16,12 @@
           v-for="stop of stops"
           :key="stop.id"
           :lat-lng="{ lat: stop.lat, lng: stop.lon }"
-          :visible="activeStopId ? stop.id === activeStopId : true"
+          :visible="
+            (activeRouteStops.length === 0 &&
+              (activeStopId ? stop.id === activeStopId : true)) ||
+            activeRouteStops.includes(stop.id)
+          "
+          :icon="stop.forward === false ? redMarker : blueMarker"
           @click="selectStop(stop.id)"
         >
         </l-marker>
@@ -26,7 +31,7 @@
         :key="route.id"
         :routeId="route.id"
         :lat-lngs="route.points"
-        color="green"
+        color="#5c14c6"
         :visible="
           activeMap === 'routes' &&
           (!activeRouteId || activeRouteId === route.id)
@@ -49,11 +54,19 @@
 </template>
 
 <script>
-import { latLng } from "leaflet";
-import { LMap, LTileLayer, LMarker, LPolyline, LControl } from "vue2-leaflet";
+import { latLng, icon } from "leaflet";
+import {
+  LMap,
+  LTileLayer,
+  LMarker,
+  // LCircleMarker,
+  LPolyline,
+  LControl,
+} from "vue2-leaflet";
 import { useRoutesAndStopsStore } from "@/store/routes-and-stops";
 import { mapState, mapActions } from "pinia";
 import Vue2LeafletMarkerCluster from "vue2-leaflet-markercluster";
+// import marker from "@/assets/marker.svg";
 
 export default {
   name: "RoutesAndStopsMap",
@@ -61,6 +74,7 @@ export default {
     LMap,
     LTileLayer,
     LMarker,
+    // LCircleMarker,
     LPolyline,
     LControl,
     "l-marker-cluster": Vue2LeafletMarkerCluster,
@@ -77,6 +91,16 @@ export default {
         zoomSnap: 0.5,
       },
       showMap: true,
+      blueMarker: icon({
+        iconUrl: "/blue-marker.svg",
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+      }),
+      redMarker: icon({
+        iconUrl: "/red-marker.svg",
+        iconSize: [40, 40],
+        iconAnchor: [20, 23],
+      }),
     };
   },
   computed: {
@@ -87,6 +111,7 @@ export default {
       "activeStopId",
       "activeRouteId",
       "activeMap",
+      "activeRouteStops",
     ]),
   },
   methods: {
